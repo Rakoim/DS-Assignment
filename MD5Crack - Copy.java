@@ -3,7 +3,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.Scanner;
-
+test
 public class MD5Crack {
     private static volatile boolean isFound = false;  // shared across threads
     private static String foundPassword = null;       // stores found password

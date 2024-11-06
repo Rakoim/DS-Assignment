@@ -10,7 +10,7 @@ public class MD5Crack {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the MD5 hash: ");
+        System.out.print("Enter the MD5 hash (test edit): ");
         String targetHash = scanner.nextLine();
 
         System.out.print("Enter the number of threads (1-10): ");

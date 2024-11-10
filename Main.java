@@ -4,7 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-public class MultiThreadedMD5Crack {
+public class Main {
     private static boolean isFound = false; // To track if the password is found
     private static String targetHash;
     private static long startTime;
@@ -47,7 +47,7 @@ public class MultiThreadedMD5Crack {
             for (int i = 0; i < numThreads; i++) {
                 int start = 33 + i * range;
                 int end = (i == numThreads - 1) ? 126 : start + range - 1;
-                executor.submit(new MD5CrackWorker(start, end, length, i + 1));
+                executor.submit(new MD5Crack(start, end, length, i + 1));
             }
         }
 
@@ -85,42 +85,20 @@ public class MultiThreadedMD5Crack {
         }
     }
 
-    static class MD5CrackWorker implements Runnable {
-        private final int start;
-        private final int end;
-        private final int length;
-        private final int threadId;
+    // Public getter methods for isFound, targetHash, and startTime
+    public static boolean isFound() {
+        return isFound;
+    }
 
-        MD5CrackWorker(int start, int end, int length, int threadId) {
-            this.start = start;
-            this.end = end;
-            this.length = length;
-            this.threadId = threadId;
-        }
+    public static String getTargetHash() {
+        return targetHash;
+    }
 
-        @Override
-        public void run() {
-            crackPassword(new char[length], 0);
-        }
+    public static long getStartTime() {
+        return startTime;
+    }
 
-        private synchronized void crackPassword(char[] chars, int pos) {
-            if (pos == chars.length) {
-                String attempt = new String(chars);
-                if (getMd5(attempt).equals(targetHash) && !isFound) {
-                    long endTime = System.currentTimeMillis();
-                    isFound = true; // Set password found flag
-                    System.out.println("Thread ID: " + threadId);
-                    System.out.println("Password: " + attempt);
-                    System.out.println("Time taken: " + (endTime - startTime) / 1000.0 + " seconds");
-                }
-                return;
-            }
-
-            // Try characters from 'start' to 'end' for each position
-            for (int i = (pos == 0 ? start : 33); i <= (pos == 0 ? end : 126) && !isFound; i++) {
-                chars[pos] = (char) i;
-                crackPassword(chars, pos + 1);
-            }
-        }
+    public static void setFound(boolean found) {
+        isFound = found;
     }
 }

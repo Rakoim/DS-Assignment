@@ -13,6 +13,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         // Prompt for MD5 hash input
+
         while (true) {
             System.out.print("Enter MD5 hash to crack: ");
             targetHash = scanner.nextLine().trim();
@@ -52,11 +53,9 @@ public class Main {
         }
 
         executor.shutdown();
-        // Wait for threads to complete
+        // Wait for threads to complete indefinitely
         try {
-            if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
-                System.out.println("Timeout reached before completion.");
-            }
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

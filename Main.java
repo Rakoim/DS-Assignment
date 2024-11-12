@@ -4,19 +4,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
+// Main class for the MD5 password-cracking program
 public class Main {
-    private static boolean isFound = false; // To track if the password is found
-    private static String targetHash;
-    private static long startTime;
+    private static boolean isFound = false; // Tracks if the password is found
+    private static String targetHash;       // The target MD5 hash to crack
+    private static long startTime;          // Records the start time for performance tracking
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Prompt for MD5 hash input
-
+        // Prompt the user to enter an MD5 hash
         while (true) {
             System.out.print("Enter MD5 hash to crack: ");
             targetHash = scanner.nextLine().trim();
+            // Validate that the input is a valid MD5 hash
             if (isValidMD5(targetHash)) {
                 break;
             } else {
@@ -25,11 +26,11 @@ public class Main {
         }
 
         int numThreads;
-        // Prompt for number of threads
+        // Prompt the user for the number of threads to use (from 1 to 10)
         while (true) {
             System.out.print("Enter number of threads (1 to 10): ");
             numThreads = scanner.nextInt();
-            scanner.nextLine(); // consume newline character
+            scanner.nextLine(); // Consume newline character
             if (numThreads >= 1 && numThreads <= 10) {
                 break;
             } else {
@@ -37,23 +38,27 @@ public class Main {
             }
         }
 
+        // Record the start time of the cracking process
         startTime = System.currentTimeMillis();
         System.out.println("Starting search with " + numThreads + " threads...");
 
+        // Initialize a thread pool with the specified number of threads
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
-        // Attempt passwords from length 3 to 6
+        // Attempt password cracking with lengths from 3 to 6 characters
         for (int length = 3; length <= 6 && !isFound; length++) {
+            // Divide the character range (33 to 126 ASCII) across threads
             int range = 94 / numThreads;
             for (int i = 0; i < numThreads; i++) {
-                int start = 33 + i * range;
-                int end = (i == numThreads - 1) ? 126 : start + range - 1;
+                int start = 33 + i * range;  // Start ASCII for each thread
+                int end = (i == numThreads - 1) ? 126 : start + range - 1; // End ASCII for each thread
+                // Submit a new MD5Crack task to the executor
                 executor.submit(new MD5Crack(start, end, length, i + 1));
             }
         }
 
         executor.shutdown();
-        // Wait for threads to complete indefinitely
+        // Wait indefinitely for all threads to complete
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
@@ -65,16 +70,19 @@ public class Main {
         }
     }
 
+    // Validates if a string is a 32-character hexadecimal (valid MD5 hash)
     private static boolean isValidMD5(String hash) {
         return hash.matches("^[a-fA-F0-9]{32}$");
     }
 
+    // Generates the MD5 hash of a given string
     public static String getMd5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] messageDigest = md.digest(input.getBytes());
             BigInteger no = new BigInteger(1, messageDigest);
             String hashText = no.toString(16);
+            // Pad with leading zeros to make the hash 32 characters
             while (hashText.length() < 32) {
                 hashText = "0" + hashText;
             }
@@ -84,7 +92,7 @@ public class Main {
         }
     }
 
-    // Public getter methods for isFound, targetHash, and startTime
+    // Getter for isFound, targetHash, and startTime
     public static boolean isFound() {
         return isFound;
     }
@@ -97,6 +105,7 @@ public class Main {
         return startTime;
     }
 
+    // Setter to mark the password as found
     public static void setFound(boolean found) {
         isFound = found;
     }
